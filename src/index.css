@@ -1,0 +1,531 @@
+/* ==========================================================================
+   Host (outer) UI — the loading screen and the error screen.
+   Plain CSS so it never clashes with the app's Tailwind classes.
+   Mobile-first: safe areas, dvh units, large touch targets, no text inflation.
+   ========================================================================== */
+
+:root {
+  --host-bg: #07090a;
+  --host-line: rgba(255, 255, 255, 0.09);
+  --host-text: #eef2f0;
+  --host-muted: #8fa09a;
+  --host-faint: #6b7a75;
+  --host-accent: #34d6a4;
+  --host-accent-soft: #7fe3c4;
+  --host-gold: #ffe066;
+  --host-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: dark;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--host-bg);
+}
+
+body {
+  min-height: 100dvh;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ---- Shared frame ------------------------------------------------------- */
+.host {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: calc(1.25rem + env(safe-area-inset-top)) calc(1.25rem + env(safe-area-inset-right))
+    calc(1.25rem + env(safe-area-inset-bottom)) calc(1.25rem + env(safe-area-inset-left));
+  overflow: hidden;
+  background:
+    radial-gradient(46rem 26rem at 50% -14%, rgba(52, 214, 164, 0.14), transparent 70%),
+    radial-gradient(32rem 22rem at 108% 106%, rgba(255, 224, 102, 0.07), transparent 70%),
+    var(--host-bg);
+  color: var(--host-text);
+  font-family: "IBM Plex Sans Arabic", "Noto Sans Arabic", "Segoe UI", system-ui, sans-serif;
+  text-align: center;
+  opacity: 1;
+  transition: opacity 360ms var(--host-ease);
+}
+
+.host.is-closing {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Slow drifting light — the only decorative motion. */
+.host__aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.host__aurora span {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(72px);
+}
+
+.host__aurora span:nth-child(1) {
+  top: -10%;
+  right: -14%;
+  width: 22rem;
+  height: 22rem;
+  background: rgba(31, 184, 138, 0.3);
+  animation: host-drift 17s ease-in-out infinite alternate;
+}
+
+.host__aurora span:nth-child(2) {
+  bottom: -18%;
+  left: -16%;
+  width: 20rem;
+  height: 20rem;
+  background: rgba(255, 224, 102, 0.12);
+  animation: host-drift 21s ease-in-out -6s infinite alternate-reverse;
+}
+
+/* Faint chalkboard grid, faded towards the bottom. */
+.host__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(127, 227, 196, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(127, 227, 196, 0.035) 1px, transparent 1px);
+  background-size: 68px 68px;
+  mask-image: linear-gradient(to bottom, black, transparent 74%);
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 74%);
+  pointer-events: none;
+}
+
+.host__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  max-width: 24rem;
+  flex-direction: column;
+  align-items: center;
+  animation: host-rise 620ms var(--host-ease) both;
+}
+
+/* ---- Loading screen ----------------------------------------------------- */
+.host__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.host__logo-wrap {
+  position: relative;
+  display: grid;
+  width: 6.25rem;
+  height: 6.25rem;
+  place-items: center;
+}
+
+.host__logo {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: host-float 5.5s ease-in-out infinite;
+}
+
+.host__logo-glow {
+  position: absolute;
+  inset: -22%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(52, 214, 164, 0.4), transparent 66%);
+  filter: blur(16px);
+  animation: host-breathe 4.2s ease-in-out infinite;
+}
+
+.host__logo-ring {
+  position: absolute;
+  inset: -0.55rem;
+  border: 1px solid rgba(127, 227, 196, 0.2);
+  border-radius: 1.7rem;
+}
+
+.host__wordmark {
+  margin: 0;
+  background: linear-gradient(180deg, #ffffff, #b3c2bd);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-family: "Sora", "IBM Plex Sans Arabic", sans-serif;
+  font-size: 2.5rem;
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+.host__tagline {
+  margin: 0;
+  color: var(--host-accent-soft);
+  font-family: "Playpen Sans Arabic", "IBM Plex Sans Arabic", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.host__steps {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.host__step {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.85rem;
+  text-align: start;
+  transition: background 220ms ease;
+}
+
+.host__step[data-state="active"] {
+  background: rgba(52, 214, 164, 0.08);
+}
+
+.host__step-icon {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  place-items: center;
+}
+
+.host__step-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.host__step-spinner {
+  width: 1.05rem;
+  height: 1.05rem;
+  border: 2px solid rgba(52, 214, 164, 0.24);
+  border-top-color: var(--host-accent);
+  border-radius: 999px;
+  animation: host-spin 720ms linear infinite;
+}
+
+.host__step-check {
+  display: grid;
+  width: 1.1rem;
+  height: 1.1rem;
+  place-items: center;
+  color: var(--host-accent);
+}
+
+.host__step-check svg {
+  width: 100%;
+  height: 100%;
+}
+
+.host__step-label {
+  color: var(--host-faint);
+  font-size: 0.87rem;
+  line-height: 1.5;
+  transition: color 220ms ease;
+}
+
+.host__step[data-state="done"] .host__step-label {
+  color: #a9b7b2;
+}
+
+.host__step[data-state="active"] .host__step-label {
+  color: var(--host-text);
+  font-weight: 600;
+}
+
+.host__progress {
+  position: relative;
+  width: 100%;
+  height: 4px;
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.host__progress-fill {
+  position: relative;
+  display: block;
+  height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1fb88a, var(--host-accent-soft));
+  transition: width 420ms var(--host-ease);
+}
+
+/* Soft sheen travelling along the bar. */
+.host__progress-fill::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  content: "";
+  transform: translateX(-100%);
+  animation: host-sheen 1.8s ease-in-out infinite;
+}
+
+.host__beta {
+  margin-top: -0.2rem;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  background: var(--host-gold);
+  color: #2b2300;
+  font-family: system-ui, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.host__hint {
+  margin: 1.1rem 0 0;
+  color: var(--host-faint);
+  font-size: 0.75rem;
+  line-height: 1.7;
+}
+
+/* ---- Error screen ------------------------------------------------------- */
+.host__stage--error {
+  max-width: 26rem;
+}
+
+.host__card {
+  width: 100%;
+  border: 1px solid var(--host-line);
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015)),
+    #0f1416;
+  padding: 1.5rem 1.25rem;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), inset 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.host__badge {
+  display: grid;
+  width: 3.25rem;
+  height: 3.25rem;
+  margin: 0 auto 1rem;
+  place-items: center;
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  border-radius: 1rem;
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+}
+
+.host__badge svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.host__title {
+  margin: 0 0 0.6rem;
+  font-family: "Sora", "IBM Plex Sans Arabic", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.host__text {
+  margin: 0;
+  color: var(--host-muted);
+  font-size: 0.87rem;
+  line-height: 1.85;
+}
+
+.host__error {
+  margin: 1.1rem 0;
+  max-height: 8.5rem;
+  overflow: auto;
+  border: 1px solid rgba(248, 113, 113, 0.18);
+  border-radius: 0.9rem;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.75rem;
+  color: #fca5a5;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.72rem;
+  line-height: 1.6;
+  text-align: start;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overscroll-behavior: contain;
+}
+
+.host__actions {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.host__btn {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid var(--host-line);
+  border-radius: 0.95rem;
+  background: rgba(255, 255, 255, 0.045);
+  padding: 0 1rem;
+  color: var(--host-text);
+  font: inherit;
+  font-size: 0.87rem;
+  font-weight: 600;
+  text-decoration: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 160ms var(--host-ease), background 160ms ease, border-color 160ms ease;
+}
+
+.host__btn:active {
+  transform: scale(0.985);
+}
+
+.host__btn--primary {
+  min-height: 3.25rem;
+  border-color: transparent;
+  background: linear-gradient(135deg, #43e3b1, #1fb88a);
+  color: #06231b;
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 0 14px 38px rgba(31, 184, 138, 0.25), inset 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.host__note {
+  margin: 1.1rem 0 0;
+  color: #5d6b66;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.68rem;
+  word-break: break-all;
+}
+
+/* ---- Larger phones / small tablets -------------------------------------- */
+@media (min-width: 420px) {
+  .host__card {
+    padding: 1.75rem 1.5rem;
+  }
+
+  .host__wordmark {
+    font-size: 2.9rem;
+  }
+
+  .host__logo-wrap {
+    width: 7rem;
+    height: 7rem;
+  }
+}
+
+/* ---- Motion ------------------------------------------------------------- */
+@keyframes host-rise {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes host-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-0.4rem);
+  }
+}
+
+@keyframes host-breathe {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.07);
+  }
+}
+
+@keyframes host-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-2.5rem, 2rem, 0) scale(1.12);
+  }
+}
+
+@keyframes host-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes host-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .host,
+  .host__stage,
+  .host__logo,
+  .host__logo-glow,
+  .host__aurora span,
+  .host__step,
+  .host__step-label,
+  .host__progress-fill,
+  .host__progress-fill::after,
+  .host__btn {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   Tool logo inside the Maalam app (loaded from GitHub)
+   The app renders its mark as a .maalam-logo tile with a "م" character.
+   These overrides show the custom logo image instead, without touching the repo.
+   Keep the URL in sync with LOGO_URL in src/config.ts.
+   ========================================================================== */
+.maalam-logo {
+  background-color: transparent !important;
+  background-image: url("https://i.ibb.co/rKYMdtMv/Color-matching-first-image-2-K-20261006234249.jpg") !important;
+  background-size: contain !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.maalam-logo > span {
+  visibility: hidden !important;
+}
+
+.maalam-logo::before,
+.maalam-logo::after {
+  background: transparent !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
